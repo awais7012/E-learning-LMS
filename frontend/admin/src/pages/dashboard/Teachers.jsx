@@ -48,11 +48,11 @@ const Teachers = () => {
     fetchTeachers();
   }, [baseUrl]);
 
-  // Filter teachers based on search term (by username, email, or _id)
+  // Filter teachers based on search term (by username, email, or id)
   const filteredTeachers = teachers.filter((teacher) =>
     teacher.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     teacher.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    teacher._id?.toLowerCase().includes(searchTerm.toLowerCase())
+    teacher.id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Separate teachers into pending and approved groups based on is_active
@@ -63,6 +63,8 @@ const Teachers = () => {
   const handleApprove = async (id) => {
     try {
       const token = localStorage.getItem("token"); // use the same token as for fetching
+      console.log("Approving teacher at:", `${baseUrl}/api/users/${id}`);
+      console.log("Using token:", token);
       await axios.put(
         `${baseUrl}/api/users/${id}`,
         { is_active: true },
@@ -72,7 +74,7 @@ const Teachers = () => {
       // Update local state for instant feedback
       setTeachers((prev) =>
         prev.map((teacher) =>
-          teacher._id === id ? { ...teacher, is_active: true } : teacher
+          teacher.id === id ? { ...teacher, is_active: true } : teacher
         )
       );
     } catch (error) {
@@ -80,7 +82,6 @@ const Teachers = () => {
       alert("Failed to approve teacher");
     }
   };
-  
 
   // Optional Reject handler (if needed)
   const handleReject = async (id) => {
@@ -94,7 +95,7 @@ const Teachers = () => {
       alert("Teacher rejected successfully");
       setTeachers((prev) =>
         prev.map((teacher) =>
-          teacher._id === id ? { ...teacher, is_active: false } : teacher
+          teacher.id === id ? { ...teacher, is_active: false } : teacher
         )
       );
     } catch (error) {
@@ -175,7 +176,7 @@ const Teachers = () => {
           <p className="text-gray-500">No pending teachers.</p>
         ) : (
           pendingTeachers.map((teacher) => (
-            <div key={teacher._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow mb-4">
+            <div key={teacher.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow mb-4">
               <div className="flex flex-col md:flex-row">
                 <div className="flex flex-col md:flex-row items-start mb-4 md:mb-0 md:mr-6">
                   <img
@@ -217,7 +218,7 @@ const Teachers = () => {
                 <div className="flex flex-col md:flex-row md:items-center md:ml-auto">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleView(teacher._id)}
+                      onClick={() => handleView(teacher.id)}
                       className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50"
                     >
                       <FiEye className="inline-block mr-1" /> View
@@ -229,7 +230,7 @@ const Teachers = () => {
                       <FiMail className="inline-block mr-1" /> Contact
                     </button>
                     <button
-                      onClick={() => handleApprove(teacher._id)}
+                      onClick={() => handleApprove(teacher.id)}
                       className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-medium hover:bg-green-600"
                     >
                       <FiUserCheck className="inline-block mr-1" /> Approve
@@ -249,7 +250,7 @@ const Teachers = () => {
           <p className="text-gray-500">No approved teachers.</p>
         ) : (
           approvedTeachers.map((teacher) => (
-            <div key={teacher._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow mb-4">
+            <div key={teacher.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow mb-4">
               <div className="flex flex-col md:flex-row">
                 <div className="flex flex-col md:flex-row items-start mb-4 md:mb-0 md:mr-6">
                   <img
@@ -291,7 +292,7 @@ const Teachers = () => {
                 <div className="flex flex-col md:flex-row md:items-center md:ml-auto">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleView(teacher._id)}
+                      onClick={() => handleView(teacher.id)}
                       className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50"
                     >
                       <FiEye className="inline-block mr-1" /> View
