@@ -88,13 +88,13 @@ export const AuthProvider = ({ children }) => {
       const token = res.data.access_token; // ✅ Correct token key
       const userData = res.data.user; // ✅ Extract user data
       const userrole = userData.role; // ✅ Extract role from user object
-      const isApproved = res.is_active; // ✅ Extract approved from user object
-      console.log(isApproved);
-
+      const isApproved = res.data.is_active; // ✅ Extract approved from user object
+      console.log(res);
       if (!isApproved) {
         throw new Error("Not approved yet");
         return; // Stop login process
       }
+      console.log("pass")
       // Store token & user details
       setAccessToken(token);
       setUserName(userData.username);
@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }) => {
       setUserName(null);
       localStorage.clear();
 
-      await api.post('/api/auth/logout');
+      await api.post('/logout');
       navigate("/login");
     } catch (error) {
       console.error(

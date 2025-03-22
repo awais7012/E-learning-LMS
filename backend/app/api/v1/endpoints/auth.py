@@ -191,7 +191,8 @@ async def login(response: Response,form_data: OAuth2PasswordRequestForm = Depend
         "id": str(user["_id"]),
         "email": user["email"],
         "username": user["username"],
-        "role": user["role"]
+        "role": user["role"],
+        "is_active": user["is_active"],
     }
     
     return {

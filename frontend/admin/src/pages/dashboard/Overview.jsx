@@ -147,7 +147,7 @@ const Overview = () => {
           </div>
         </div>
         
-        {/* <div className="bg-white rounded-xl shadow-sm p-6">
+        { <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 text-sm font-medium mb-1">Pending Approvals</p>
@@ -162,9 +162,9 @@ const Overview = () => {
               <FiBell className="h-6 w-6 text-yellow-500" />
             </div>
           </div>
-        </div> */}
+        </div> }
         
-        {/* <div className="bg-white rounded-xl shadow-sm p-6">
+        { <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 text-sm font-medium mb-1">Today's Classes</p>
@@ -179,7 +179,7 @@ const Overview = () => {
               <FiCalendar className="h-6 w-6 text-[#19a4db]" />
             </div>
           </div>
-        </div> */}
+        </div> }
         
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-start">
