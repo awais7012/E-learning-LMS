@@ -27,19 +27,20 @@ An advanced Learning Management System (LMS) built with **FastAPI** for the back
 - **Grading System**: Teachers can assign grades for assignments and exams. Students can view their grades.
 - **User Authentication**: Secure login and role-based access control.
 - **Reports and Analytics**: Generate reports for attendance, grades, and overall performance.
+- **Certificates**: on complication of course a certificate is generated and issued to student automaticaly.
 
 ## Tech Stack
 
 ### Backend
 - **FastAPI**: High-performance backend framework for building APIs.
-- **Database**: SQL-based database (e.g., PostgreSQL or MySQL) for storing user, course, and assignment data.
+- **Database**: MongoDB
 - **Authentication**: JWT-based authentication for secure access.
 
 ### Frontend
-- (Optional) Can be integrated with a frontend framework like React, Angular, or Vue.js.
+- Used react for frontend
 
 ### Deployment
-- **Server**: Deployed on cloud platforms like AWS, Azure, or Heroku.
+- **Server**: can Deployed on cloud platforms like AWS, Azure, or Heroku.
 - **Containerization**: Dockerized for easy deployment and scalability.
 
 ## Installation
@@ -47,7 +48,7 @@ An advanced Learning Management System (LMS) built with **FastAPI** for the back
 ### Prerequisites
 - Python 3.9+
 - FastAPI
-- PostgreSQL or MySQL
+- MongoDB
 - Docker (optional)
 
 ### Steps
