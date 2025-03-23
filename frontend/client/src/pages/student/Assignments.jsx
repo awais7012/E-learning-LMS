@@ -1,68 +1,66 @@
-import React, { useState, useEffect } from "react";
-import { FiFile, FiDownload, FiUpload, FiCheckCircle } from "react-icons/fi";
-import axios from "axios";
+"use client"
+
+import { useState, useEffect } from "react"
+import { FiCheckCircle } from "react-icons/fi"
+import axios from "axios"
 
 const Assignments = () => {
-  const [assignments, setAssignments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
-  const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [assignments, setAssignments] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [selectedAssignment, setSelectedAssignment] = useState(null)
+  const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000"
 
   useEffect(() => {
     const fetchAssignments = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("accessToken")
         const response = await axios.get(`${BASE_URL}/api/assignments/student`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
-        setAssignments(response.data.assignments || []);
+        })
+        setAssignments(response.data.assignments || [])
       } catch (error) {
-        console.error("Error fetching assignments:", error);
+        console.error("Error fetching assignments:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
-    fetchAssignments();
-  }, []);
+    }
+    fetchAssignments()
+  }, [])
 
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
+    setSelectedFile(e.target.files[0])
+  }
 
   const submitAssignment = async (assignmentId) => {
     if (!selectedFile) {
-      alert("Please select a file to submit.");
-      return;
+      alert("Please select a file to submit.")
+      return
     }
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      const token = localStorage.getItem("accessToken");
-      const formData = new FormData();
-      formData.append("submission_file", selectedFile);
-      const response = await axios.post(
-        `${BASE_URL}/api/assignments/${assignmentId}/submit`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
-      );
-      alert(response.data.message);
+      const token = localStorage.getItem("accessToken")
+      const formData = new FormData()
+      formData.append("submission_file", selectedFile)
+      const response = await axios.post(`${BASE_URL}/api/assignments/${assignmentId}/submit`, formData, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      })
+      alert(response.data.message)
       setAssignments(
         assignments.map((assignment) =>
-          assignment._id === assignmentId
-            ? { ...assignment, submitted: true }
-            : assignment
-        )
-      );
+          assignment._id === assignmentId ? { ...assignment, submitted: true } : assignment,
+        ),
+      )
     } catch (error) {
-      console.error("Error submitting assignment:", error);
-      alert("Failed to submit assignment.");
+      console.error("Error submitting assignment:", error)
+      alert("Failed to submit assignment.")
     } finally {
-      setIsSubmitting(false);
-      setSelectedFile(null);
+      setIsSubmitting(false)
+      setSelectedFile(null)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -84,19 +82,20 @@ const Assignments = () => {
               </thead>
               <tbody>
                 {assignments.map((assignment) => (
-                  console.log(assignment),
                   <tr key={assignment._id}>
                     <td className="px-6 py-4">{assignment.title}</td>
                     <td className="px-6 py-4">{new Date(assignment.deadline).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       {assignment.submitted
-                        ? assignment.submission.status === "Graded"
+                        ? assignment.submission && assignment.submission.status === "Graded"
                           ? "Graded"
                           : "Submitted"
                         : "Pending"}
                     </td>
                     <td className="px-6 py-4">
-                      {assignment.submission.status === "Graded" ? assignment.submission.score : "N/A"}
+                      {assignment.submitted && assignment.submission && assignment.submission.status === "Graded"
+                        ? assignment.submission.score
+                        : "N/A"}
                     </td>
                     <td className="px-6 py-4 flex space-x-2">
                       {assignment.submitted ? (
@@ -124,7 +123,8 @@ const Assignments = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Assignments;
+export default Assignments
+

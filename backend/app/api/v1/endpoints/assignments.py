@@ -24,7 +24,7 @@ async def create_assignment(
 ) -> Any:
     course = await db.courses.find_one({
         "_id": ObjectId(courseId),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:

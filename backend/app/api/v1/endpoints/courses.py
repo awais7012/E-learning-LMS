@@ -54,7 +54,7 @@ async def create_course(
         "maxStudents": maxStudents,
         "difficulty": difficulty,
         "instructorName": instructorName,
-        "teacher_id": str(ObjectId(current_user.id)), 
+        "teacher_id": str(current_user.id), 
         "thumbnail": thumbnail_path,
         "enrollmentStatus": "Open",
         "studentsEnrolled": 0,
@@ -71,9 +71,25 @@ async def create_course(
         "message": "Course created successfully",
         "course": {
             "_id": str(result.inserted_id),
-            **course_data,
-            "thumbnail": thumbnail_path
-        }
+            "courseName": courseName,
+            "courseCode": courseCode,
+            "description": description,
+            "category": category,
+            "duration": duration,
+            "price": price,
+            "maxStudents": maxStudents,
+            "difficulty": difficulty,
+            "instructorName": instructorName,
+            "teacher_id": str(ObjectId(current_user.id)), 
+            "thumbnail": thumbnail_path,
+            "enrollmentStatus": "Open",
+            "studentsEnrolled": 0,
+            "hasModules": False,
+            "hasQuizzes": False,
+            "certificateOffered": False,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+            }
     }
 
 @router.get("/teacher/courses", response_model=dict)
@@ -82,7 +98,7 @@ async def get_teacher_courses(current_user: User = Depends(get_current_teacher))
     Get all courses created by the current teacher.
     """
     courses = []
-    cursor = db.courses.find({"teacher_id": ObjectId(current_user.id)})
+    cursor = db.courses.find({"teacher_id": str(ObjectId(current_user.id))})
     
     async for course in cursor:
         course["_id"] = str(course["_id"])
@@ -202,7 +218,7 @@ async def get_course_details(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -280,7 +296,7 @@ async def update_course(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": course_obj_id,
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -321,7 +337,7 @@ async def create_module(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -389,7 +405,7 @@ async def create_lesson(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -470,7 +486,7 @@ async def delete_lesson(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -572,7 +588,7 @@ async def get_course_students(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
