@@ -53,7 +53,7 @@ const Certificates = () => {
                       Available
                     </span>
                     <div className="mt-3 flex space-x-2">
-                      <a href={certificate.certificate_url} download className="flex items-center text-sm bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600">
+                      <a href={`${BASE_URL}/uploads/${certificate.certificate_url}`} download className="flex items-center text-sm bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600">
                         <FiDownload className="mr-1" />
                         Download
                       </a>

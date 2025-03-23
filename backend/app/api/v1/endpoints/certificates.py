@@ -1,10 +1,9 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from app.models.user import User
 from app.models.certificate import Certificate, CertificateCreate, StudentCertificate
 from app.api.deps import get_current_teacher, get_current_student, get_current_user, get_current_superuser
 from app.db.mongodb import db
-from app.utils.file_upload import save_upload
 from app.utils.certificate_generator import generate_certificate
 from bson import ObjectId
 import logging
@@ -19,16 +18,16 @@ async def create_certificate_template(
     title: str = Form(...),
     course_id: str = Form(...),
     description: Optional[str] = Form(None),
-    template: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_teacher)
 ) -> Any:
     """
     Create certificate template for a course (teacher only).
+    No template upload required - uses default template.
     """
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -43,27 +42,31 @@ async def create_certificate_template(
     })
     
     if existing_certificate:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Certificate template already exists for this course"
+        # Update existing certificate
+        await db.certificates.update_one(
+            {"_id": existing_certificate["_id"]},
+            {
+                "$set": {
+                    "title": title,
+                    "description": description,
+                    "updated_at": datetime.utcnow()
+                }
+            }
         )
-    
-    # Save template file if provided
-    template_path = None
-    if template:
-        template_path = await save_upload(template, "certificate_templates")
-    
-    # Create certificate template
-    certificate_data = {
-        "course_id": ObjectId(course_id),
-        "title": title,
-        "description": description,
-        "template": template_path,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
-    }
-    
-    result = await db.certificates.insert_one(certificate_data)
+        certificate_id = existing_certificate["_id"]
+    else:
+        # Create certificate template with default template path
+        certificate_data = {
+            "course_id": ObjectId(course_id),
+            "title": title,
+            "description": description,
+            "template": "certificate_templates/default_template.png",  # Default template path
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.certificates.insert_one(certificate_data)
+        certificate_id = result.inserted_id
     
     # Update course to indicate it offers certificates
     await db.courses.update_one(
@@ -80,9 +83,11 @@ async def create_certificate_template(
     return {
         "message": "Certificate template created successfully",
         "certificate": {
-            "_id": str(result.inserted_id),
-            **certificate_data,
-            "course_id": str(certificate_data["course_id"])
+            "_id": str(certificate_id),
+            "title": title,
+            "description": description,
+            "course_id": course_id,
+            "template": "certificate_templates/default_template.png"
         }
     }
 
@@ -98,7 +103,7 @@ async def issue_certificate(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -153,7 +158,7 @@ async def issue_certificate(
     # Generate unique credential ID
     credential_id = f"CERT-{course['courseCode']}-{uuid.uuid4().hex[:6].upper()}"
     
-    # Generate certificate file
+    # Generate certificate file using the default template
     certificate_url = await generate_certificate(
         student_name=student["username"],
         course_name=course["courseName"],
@@ -161,7 +166,7 @@ async def issue_certificate(
         instructor_name=course["instructorName"],
         issue_date=datetime.utcnow(),
         credential_id=credential_id,
-        template_path=certificate["template"]
+        template_path=certificate["template"]  # This will be the default template
     )
     
     # Create student certificate record
@@ -193,15 +198,20 @@ async def issue_certificate(
     await db.notifications.insert_one(notification_data)
     
     return {
-        "message": "Certificate issued successfully",
-        "certificate": {
-            "_id": str(result.inserted_id),
-            **student_certificate_data,
-            "certificate_id": str(student_certificate_data["certificate_id"]),
-            "student_id": str(student_certificate_data["student_id"]),
-            "course_id": str(student_certificate_data["course_id"])
-        }
+    "message": "Certificate issued successfully",
+    "certificate": {
+        "_id": str(result.inserted_id),
+        "certificate_id": str(student_certificate_data["certificate_id"]),
+        "student_id": str(student_certificate_data["student_id"]),
+        "course_id": str(student_certificate_data["course_id"]),
+        "issue_date": student_certificate_data["issue_date"],
+        "completion_date": student_certificate_data["completion_date"],
+        "credential_id": student_certificate_data["credential_id"],
+        "certificate_url": student_certificate_data["certificate_url"],
+        "status": student_certificate_data["status"]
     }
+}
+
 
 @router.get("/student", response_model=dict)
 async def get_student_certificates(current_user: User = Depends(get_current_student)) -> Any:
@@ -244,7 +254,7 @@ async def get_course_certificates(
     # Check if course exists and belongs to the teacher
     course = await db.courses.find_one({
         "_id": ObjectId(course_id),
-        "teacher_id": ObjectId(current_user.id)
+        "teacher_id": str(ObjectId(current_user.id))
     })
     
     if not course:
@@ -299,7 +309,7 @@ async def get_all_certificates(current_user: Any = Depends(get_current_superuser
     cursor = db.student_certificates.find({})
 
     certificates = []
-    async for doc in cursor:  # ✅ Correct: Using async iteration
+    async for doc in cursor:
         doc["_id"] = str(doc["_id"])
         doc["certificate_id"] = str(doc["certificate_id"])
         doc["student_id"] = str(doc["student_id"])
@@ -307,3 +317,4 @@ async def get_all_certificates(current_user: Any = Depends(get_current_superuser
         certificates.append(doc)
 
     return {"total": total, "certificates": certificates}
+

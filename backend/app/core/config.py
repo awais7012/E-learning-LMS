@@ -1,3 +1,4 @@
+import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator
@@ -37,8 +38,8 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str = "admin123"
     
     # Upload settings
-    UPLOAD_FOLDER: str = "uploads"
-    MAX_UPLOAD_SIZE: int = 20 * 1024 * 1024  # 20 MB
+    UPLOAD_FOLDER: str = os.path.join(os.getcwd(), "uploads")
+    MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50 MB
     
     # JWT settings
     JWT_ALGORITHM: str = "HS256"

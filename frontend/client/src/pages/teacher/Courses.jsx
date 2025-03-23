@@ -122,7 +122,7 @@ const Courses = () => {
                 <div className="flex items-center">
                   <FiUsers className="text-gray-400 mr-1" />
                   <span className="text-sm text-gray-500">
-                    {course.maxStudents} students
+                    Max Limit: {course.maxStudents} students
                   </span>
                 </div>
                 <span
@@ -136,21 +136,21 @@ const Courses = () => {
                 </span>
               </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="display flex justify-between items-center mt-4">
                 <button
                   onClick={() =>
                     navigate(`/teacher-dashboard/courses/${course._id}/manage`)
                   }
-                  className="flex justify-center items-center px-4 py-2 bg-[#19a4db] text-white rounded-lg text-sm font-medium"
+                  className="flex justify-center items-center px-4 py-2 bg-[#19a4db] text-white rounded-lg text-sm font-medium [width: 200%]"
                 >
                   Manage Course
                 </button>
-                <button className="flex justify-center items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium">
+                {/* <button className="flex justify-center items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium">
                   View Materials
                 </button>
                 <button className="flex justify-center items-center px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium">
                   Student Performance
-                </button>
+                </button> */}
               </div>
             </div>
           ))}
