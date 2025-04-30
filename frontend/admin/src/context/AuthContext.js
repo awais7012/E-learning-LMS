@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const api = axios.create({
-  baseURL: "https://e-learning-lms-f2gm.onrender.com/api/auth",
+  baseURL: "https://e-learning-lms-kas6.onrender.com/api/auth",
   withCredentials: true,
   contentType:"application/json",
 
