@@ -81,7 +81,7 @@ An advanced Learning Management System (LMS) built with **FastAPI** on the backe
 
 1. **Clone the Repository:**
    ```sh
-   git clone https://github.com/mE-uMAr/E-learning-LMS.git
+  https://github.com/awais7012/E-learning-LMS.git
    cd E-learning-LMS
    ```
 
